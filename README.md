@@ -17,8 +17,8 @@ OAuth 2.1 + Streamable HTTP wrapper around [`@delorenj/mcp-server-trello`](https
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `TRELLO_API_KEY` | Yes | From https://trello.com/app-key |
-| `TRELLO_TOKEN` | Yes | Generated via the same page |
+| `TRELLO_API_KEY` | Yes | API key of a Power-Up (see [Getting credentials](#getting-credentials) below) |
+| `TRELLO_TOKEN` | Yes | Server token authorized against the Power-Up's API key |
 | `MCP_SECRET` | Yes | Random secret; OAuth `client_id`/`client_secret` are derived from it |
 | `SERVER_URL` | Yes | Public HTTPS URL (OAuth issuer) |
 | `TRELLO_BOARD_ID` | No | Default active board |
@@ -26,6 +26,21 @@ OAuth 2.1 + Streamable HTTP wrapper around [`@delorenj/mcp-server-trello`](https
 | `TOKEN_STORE_PATH` | No | Default `/data/oauth-tokens.json` |
 | `PORT` | No | Default `3000` |
 | `UPSTREAM_ENTRY` | No | Path to upstream entry; default `node_modules/@delorenj/mcp-server-trello/build/index.js` |
+
+## Getting credentials
+
+Trello deprecated the old `trello.com/app-key` page. API keys now live inside Power-Ups. Even for personal use you have to create a (dummy) Power-Up first.
+
+1. Go to [trello.com/power-ups/admin/](https://trello.com/power-ups/admin/) and click **New**.
+2. Fill in any name, your email, and pick a workspace. Submit.
+3. Open the Power-Up and go to the **API key** tab.
+4. The **API key** is your `TRELLO_API_KEY`.
+5. On the same page, to the right of the key, you'll see:
+   > Most developers will need to ask each user to authorize your application. If you are looking to build an application for yourself, or are doing local testing, you can manually generate a **Token**.
+
+   Click **Token**, approve, and copy the value. That's your `TRELLO_TOKEN`.
+
+> **Don't confuse the Token with the OAuth Secret.** The "OAuth Secret" listed near the API key is used to sign OAuth 1.0 callbacks and is **not** a valid `TRELLO_TOKEN` — calls will return `401`.
 
 ## Quick start
 
