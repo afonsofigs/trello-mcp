@@ -24,7 +24,8 @@ Dockerfile         — node:24-alpine
 
 - **Stdio proxy, not reimplementation** — All ~30 Trello tools come from upstream via `tools/list`. Our server just forwards `tools/call` to the upstream `Client` instance. Adding new tools upstream propagates automatically on next image rebuild.
 - **Single upstream child process** — Spawned once at startup, shared across all MCP sessions. Closing on SIGTERM/SIGINT.
-- **OAuth client credentials derived from `MCP_SECRET`** — Same pattern as `telegram-bot-mcp` / `obsidian-couchdb-mcp`. Deterministic across restarts.
+- **OAuth client credentials derived from `MCP_SECRET`** — Same pattern as `telegram-bot-mcp` / `obsidian-couchdb-mcp`. Deterministic across restarts. No dynamic registration: `/register` is not served, so the credentials are pasted by hand into the connector's settings.
+- **Rotating `MCP_SECRET` revokes everything** — on startup the token store drops codes and tokens issued to the previous `client_id`.
 - **File-persisted token store** — `TOKEN_STORE_PATH` (default `/data/oauth-tokens.json`). Mount a PVC there so connectors don't re-auth after pod restarts.
 - **Redirect URI validation** — Only `claude.ai` and `claude.com` callback URLs accepted.
 

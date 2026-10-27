@@ -9,7 +9,8 @@ OAuth 2.1 + Streamable HTTP wrapper around [`@delorenj/mcp-server-trello`](https
 ## Features
 
 - **All upstream Trello tools, zero drift** — tools are discovered at boot via `tools/list` and proxied 1:1
-- **OAuth 2.1** — fixed client credentials derived deterministically from `MCP_SECRET`
+- **OAuth 2.1** — fixed client credentials derived deterministically from `MCP_SECRET`. No dynamic client registration (`/register` is neither served nor advertised): the credentials only reach a client by being pasted into its settings
+- **Rotating `MCP_SECRET` revokes everything** — on startup, codes and tokens issued to the previous `client_id` are dropped from the token store, and a bearer token of another client is refused
 - **Persistent tokens** — written to `TOKEN_STORE_PATH` (default `/data/oauth-tokens.json`)
 - **Docker / K8s ready**
 
@@ -55,7 +56,7 @@ docker run -d \
   ghcr.io/afonsofigs/trello-mcp:latest
 ```
 
-Logs print the OAuth `client_id` and `client_secret` on startup — use them when adding the connector in Claude.ai.
+Logs print the OAuth `client_id` and `client_secret` on startup. In Claude.ai, add the connector with the URL `https://your-domain.com/mcp`, open **Advanced settings** and paste the `client_id` / `client_secret` there. They have to be entered by hand: the server does not support dynamic client registration, so a connector added without them cannot link.
 
 ## Endpoints
 
@@ -63,9 +64,9 @@ Logs print the OAuth `client_id` and `client_secret` on startup — use them whe
 |----------|------|-------------|
 | `GET /health` | No | Health check |
 | `GET /.well-known/oauth-authorization-server` | No | OAuth metadata |
-| `POST /register` | No | Client registration (returns fixed client) |
 | `GET /authorize` | No | Authorization (auto-approve) |
-| `POST /token` | No | Token exchange |
+| `POST /token` | Client credentials | Token exchange |
+| `POST /revoke` | Client credentials | Token revocation (RFC 7009), only for tokens of the authenticated client |
 | `POST /mcp` | Bearer | Streamable HTTP — MCP requests |
 | `GET /mcp` | Bearer | Streamable HTTP — server notifications |
 | `DELETE /mcp` | Bearer | Session termination |
